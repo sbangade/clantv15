@@ -336,7 +336,7 @@ export const liveDriver = async (req, res) => {
 export const passengerHistory = async (req, res) => { 
 
   //const token = req.body.Token
-  const tkn = await Register.findOne({ Token: req.body.Token })
+  const tkn = await Register.findOne({ Token: req.query.Token })
   console.log(tkn._id);
   //var jsonToSend = [];
   //const tkn = await Register.findOne({ Token: req.body.Token })
@@ -351,10 +351,10 @@ export const passengerHistory = async (req, res) => {
      const passenger_list = user.plist;
      var jsonarray = JSON.parse(JSON.stringify(passenger_list))
 
-     function funName(jsonToSend) {
+      function funName(jsonToSend) {
     
-      //res.status(200).send(jsonarray);
-     }
+      //  res.status(200).send(jsonarray);
+      }
      if(passenger_list == ''){
        res.send('No History - 0 Posts')
      }
@@ -380,15 +380,26 @@ passenger_list.forEach(async (element, index, array) => {
         jsonarray[index].ImageDriver = value.Image
         jsonarray[index].MobileDriver = value.Mobile
         
-        res.status(200).send(jsonarray);
+        //function funName(jsonToSend) {
+           return res.status(200).send(jsonarray);
+        //}
+        
         }
         
         
          if (index == array.length - 1) {
           
-             funName(jsonarray);
+             funName(jsonarray);    
          }
+        //  function funName(jsonToSend) {
+    
+        //   res.status(200).send(jsonarray);
+        //  }
+        //  return res.status(200).send(jsonarray);
     });
+    // function funName(jsonToSend) {
+    //   return res.status(200).send(jsonarray);
+    // }
   }
    });
 } 
@@ -748,7 +759,7 @@ admin.messaging().send(message)
 
 // drivers history (The booking he/she took)
 export const datahistory = async (req, res, next) => {
-  const tkn = await Register.findOne({ Token: req.body.Token })
+  const tkn = await Register.findOne({ Token: req.query.Token })
   console.log('drid',tkn._id)
   var jsonToSend = [];
 
@@ -844,11 +855,53 @@ export const addUserRequest = async (req, res) => {
    .populate("plist",{ Token: 0, poster: 0, _id: 0 }).limit(limit * 1).skip((page - 1) * limit) // key to populate
    .then(user => {
      const passenger_list = user.plist;
-    res.status(200).json(
-      {
-        passenger_list
-      }
-  )
+     var jsonarray = JSON.parse(JSON.stringify(passenger_list))
+
+     //function funName(jsonToSend) {
+    
+      //res.status(200).send(jsonarray);
+     //}
+     if(passenger_list == ''){
+       res.send('No History - 0 Posts')
+     }
+     else{
+
+passenger_list.forEach(async (element, index, array) => {
+      let temp = element.drivers;
+      //console.log(temp);
+      if(temp != undefined) {
+      
+      var value = await Register.findOne(temp).select('FirstName LastName Image Mobile');
+      console.log('value', value.FirstName);
+      // var jsonObject = JSON.parse("{}")
+
+      // jsonObject.FirstNamePassenger = value.FirstName
+      // jsonObject.LastNamePassenger = value.LastName
+      // jsonObject.ImagePassenger = value.Image
+      // jsonObject.MobilePassenger = value.Mobile
+
+      // jsonToSend.push(jsonObject)
+        jsonarray[index].FirstNameDriver = value.FirstName
+        jsonarray[index].LastNameDriver = value.LastName
+        jsonarray[index].ImageDriver = value.Image
+        jsonarray[index].MobileDriver = value.Mobile
+        
+        // function funName(jsonToSend) {
+        //   return res.status(200).send(jsonarray);
+        // }
+        
+        }
+        
+        
+         if (index == array.length - 1) {
+          
+             funName(jsonarray);
+         }
+    });
+    function funName(jsonToSend) {
+      return res.status(200).send(jsonarray);
+    }
+  }
    });
   }
     // let newUser = new Passenger(req.body);

@@ -36,7 +36,7 @@ routes(app);
 //                });});
 
 app.get('/', (req, res) =>
-    res.send(`Welcome to Registration API`)
+    res.send(`Welcome to Clanit API`)
 );
 
 // // This registration token comes from the client FCM SDKs.
