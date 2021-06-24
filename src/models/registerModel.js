@@ -111,7 +111,8 @@ export const passengerSchema = new Schema({
         required: 'Enter your drop off location'
     },
     Time: {
-        type: String
+        type: String,
+        required: 'Enter your ride time'
     },
     Description: {
         type: String,
