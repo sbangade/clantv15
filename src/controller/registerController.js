@@ -62,24 +62,24 @@ export const addnewRegister = (req, res, next) => {
 
     //console.log('mail',mail)
     if(mail == '' || mail == undefined){
-       return res.send('Plase Enter Your Email Address')
+       return res.send('Please Enter Your Email Address')
     }if(pass == '' || pass == undefined){
-       return res.send('Plase Enter Your Password')
+       return res.send('Please Enter Your Password')
     }
     if(fname == '' || fname == undefined){
-      return res.send('Plase Enter Your First Name')
+      return res.send('Please Enter Your First Name')
     }
     if(lname == '' || lname == undefined){
-      return res.send('Plase Enter Your Last Name')
+      return res.send('Please Enter Your Last Name')
     }
     if(birth == '' || birth == undefined){
-      return res.send('Plase Enter Your Birth Date')
+      return res.send('Please Enter Your Birth Date')
     }
     if(driver_pass == '' || driver_pass == undefined){
-      return res.send('Plase decide driver or passenger')
+      return res.send('Please decide driver or passenger')
     }
     if(mbile == '' || mbile == undefined){
-      return res.send('Plase Enter Your Mobile number')
+      return res.send('Please Enter Your Mobile number')
     }
     else{
    // if(req.body.Email.length > 1){
@@ -570,9 +570,9 @@ export const addDriver = async (req, res, next) => {
     }
 
 export const confirmBooking = async (req, res, next) => {
-  const postid = await Passenger.findOne({ _id: req.body.poster })
+  const postid = await Passenger.findOne({ _id: req.query.poster })
   console.log(postid.poster);
-  const tokenn = await Register.findOne({ Token: req.body.Token },{"_id":1,"FirstName":1,"LastName":1, "Image":1})
+  const tokenn = await Register.findOne({ Token: req.query.Token },{"_id":1,"FirstName":1,"LastName":1, "Image":1})
   const drvr = await Register.findOne({ _id: postid.poster },{"FirstName":1,"LastName":1,"Image":1});
   console.log('new',drvr);
   
