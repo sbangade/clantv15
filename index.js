@@ -36,7 +36,7 @@ routes(app);
 //                });});
 
 app.get('/', (req, res) =>
-    res.send(`Welcome to Clanit API`)
+    res.send(`Welcome to Kaliron's Clanit API`)
 );
 
 // // This registration token comes from the client FCM SDKs.
@@ -75,6 +75,11 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb+srv://kalironRegister:infotech@cluster0.bo8z8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => app.listen(PORT, () => console.log(`Registration API Server is running on port: ${PORT}`)))
 .catch((error) => console.log(error.message));
+// mongoose.connect('mongodb+srv://clanitapp:kali_clanit@cluster0.frgrd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+// .then(() => app.listen(PORT, () => console.log(`Registration API Server is running on port: ${PORT}`)))
+// .catch((error) => console.log(error.message));
+
+
 
 mongoose.set('useFindAndModify', false);
 

@@ -83,7 +83,7 @@ export const addnewRegister = (req, res, next) => {
     }
     else{
    // if(req.body.Email.length > 1){
-    Register.find({ Email: req.body.Email })
+    Register.find({ Email: mail })
     .exec()
     .then(user => {
       if (user.length < 1) {
@@ -764,8 +764,6 @@ export const passengerCancellation = async (req, res, next) => {
   const driveR = await Register.findById(postid.myfavorite);
   console.log('drive',driveR.fcmToken);
   //console.log(user);
-
-   // passenger post update
   // newPlace.myfavorite = user; //myfavorite
   // await newPlace.save();
  // const cancellation = user.history.filter(x => {

@@ -47,8 +47,7 @@ export const RegistersSchema = new Schema({
         required: 'Enter your password'
     },
     Token: {
-        type: String,
-        unique: true
+        type: String
     },
     fcmToken: {
         type: String
