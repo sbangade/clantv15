@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import {JWT_SECRET} from '../config/keys';
+import moment from 'moment';
 import fs from 'fs';
 import mime from 'mime';
 //import upload from '../middleware/upload';
@@ -529,8 +530,12 @@ export const addDriver = async (req, res, next) => {
   await newPlace.save();
   user.favlist.push(newPlace);
   const locality = req.body.Locality
+  //var dateTimeTofilter = moment().subtract(1, 'year');
+  var currentdate = new Date(); 
+  console.log(currentdate);
   
   await user.save();
+  var jsonToSend = [];
   await Passenger.find(
         {
           $and: [{$or:[
@@ -538,9 +543,9 @@ export const addDriver = async (req, res, next) => {
           {DropOff: { $regex: new RegExp(`^${locality}$`), $options: 'i' }
         }
         ]},
-        // {
-        //   Time: {$gte: new Date().getTime()}
-        // },
+        {
+          Time: { $gte: currentdate}
+        },
       {
         got_driver: false
       }
@@ -549,7 +554,37 @@ export const addDriver = async (req, res, next) => {
              if (err) {
                  res.send(err);
              }
-             res.json(login);
+             //res.json(login);
+             login.forEach(async (element, index, array) => {
+
+              let temp = element.poster;
+              var value = await Register.findOne(temp).select('FirstName LastName Image Mobile')
+        
+              var jsonObject = JSON.parse("{}")
+        
+        
+              jsonObject.is_trip_completed = element.is_trip_completed
+              jsonObject.post_id = element._id
+              jsonObject.pick_up = element.PickUp
+              jsonObject.drop_off = element.DropOff
+              jsonObject.time = element.Time
+              jsonObject.description = element.Description
+              jsonObject.FirstNamePassenger = value.FirstName
+              jsonObject.LastNamePassenger = value.LastName
+              jsonObject.ImagePassenger = value.Image
+              jsonObject.MobilePassenger = value.Mobile
+        
+              jsonToSend.push(jsonObject)
+        
+                 if (index == array.length - 1) {
+                     funName(jsonToSend);
+                 }
+        });
+        function funName(jsonToSend) {
+          res.status(200).json(
+            jsonToSend
+            );
+         }
          });
         }
   // let newDriver = new Pilot(req.body);
