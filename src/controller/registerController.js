@@ -14,6 +14,16 @@ import fcm from 'fcm-notification';
 import { admin } from '../firebase/firebase-config';
 import serviceAccount from '../firebase/clanit-e903d-firebase-adminsdk-wnrln-95e51dd8ee.json'; 
 
+import express from 'express';
+import bodyParser from 'body-parser';
+//const express = require('express');
+const app = express();
+//const bodyParser = require('body-parser');
+//const fs = require('fs');
+//const mime = require('mime');
+app.use(bodyParser.urlencoded({ extended: false }));
+ app.use(bodyParser.json());
+
 import { Console } from 'console';
 import { Long } from 'mongodb';
 const FcM = new fcm(serviceAccount);
@@ -24,6 +34,30 @@ const Passenger = mongoose.model('Passenger', passengerSchema);
 const Pilot = mongoose.model('Pilot', PilotSchema);
 
 //var Token = "abc";
+export const uploadImage = async (req, res, next) => {
+  // to declare some path to store your converted image
+  var matches = req.body.base64image.match(/^data:([A-Za-z-+/]+);base64,(.+)$/),
+  response = {};
+   
+  if (matches.length !== 3) {
+  return new Error('Invalid input string');
+  }
+   
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+  let decodedImg = response;
+  let imageBuffer = decodedImg.data;
+  let type = decodedImg.type;
+  let extension = mime.extension(type);
+  let fileName = "image." + extension;
+  try {
+  fs.writeFileSync("./images/" + fileName, imageBuffer, 'utf8');
+  return res.send({"status":"success"});
+  } catch (e) {
+  next(e);
+  }
+  }
+
 
 export const addnewRegister = (req, res, next) => {
   
@@ -63,24 +97,38 @@ export const addnewRegister = (req, res, next) => {
 
     //console.log('mail',mail)
     if(mail == '' || mail == undefined){
-       return res.send('Please Enter Your Email Address')
+      return res.status(401).json({
+        message: "Please Enter Your Email Address"
+      });
     }if(pass == '' || pass == undefined){
-       return res.send('Please Enter Your Password')
+      return res.status(401).json({
+        message: "Please Enter Your Password"
+      });
     }
     if(fname == '' || fname == undefined){
-      return res.send('Please Enter Your First Name')
+      return res.status(401).json({
+        message: "Please Enter Your First Name"
+      });
     }
     if(lname == '' || lname == undefined){
-      return res.send('Please Enter Your Last Name')
+      return res.status(401).json({
+        message: "Please Enter Your Last Name"
+      });
     }
     if(birth == '' || birth == undefined){
-      return res.send('Please Enter Your Birth Date')
+      return res.status(401).json({
+        message: "Please Enter Your Birth Date"
+      });
     }
     if(driver_pass == '' || driver_pass == undefined){
-      return res.send('Please decide driver or passenger')
+      return res.status(401).json({
+        message: "Please decide driver or passenger"
+      });
     }
     if(mbile == '' || mbile == undefined){
-      return res.send('Please Enter Your Mobile number')
+      return res.status(401).json({
+        message: "Please Enter Your Mobile number"
+      });
     }
     else{
    // if(req.body.Email.length > 1){
@@ -94,16 +142,50 @@ export const addnewRegister = (req, res, next) => {
           //   newRegister.Image = req.file.path
           // }
         newRegister.save();
-        res.send('Registered successfully!')
+       // return res.status(200).json({
+         // message: "Registered successfully!"
+        //});
       }else{
-          res.send('email already exist')
+        return res.status(401).json({
+          message: "Email already exist."
+        });
       }
     });
+  } 
+  var matches = req.body.Image.match(/^data:([A-Za-z-+/]+);base64,(.+)$/),
+  response = {};
+   
+  if (matches.length !== 3) {
+  return new Error('Invalid input string');
   }
+   
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+  let decodedImg = response;
+  let imageBuffer = decodedImg.data;
+  let type = decodedImg.type;
+  let extension = mime.extension(type);
+  let fileName = "image." + extension;
+  try {
+  fs.writeFileSync("./images/" + fileName, imageBuffer, 'utf8');
+  //res.setHeader('Content-Type','application/x-www-form-urlencoded')
+  return res.status(200).json({
+    message: "Registered successfully!"
+  });
+  //next();
+  //res.end();
+  
+  } 
+  catch (e) {
+  next(e);
+  }
+  
+  //next();
+}
     //else{
       //res.send("Please enter the medatory fields")
     //}    
-}
+
 
 
 
@@ -156,7 +238,7 @@ export const tokenGenerator = (req, res, next) => {
     }
     else{
       ///////////
-      res.status(401).json({
+      res.status(200).json({
         message: "FCMtoken: ",ftoken
       });
       const tokken = docs.Token;
@@ -186,14 +268,14 @@ export const userLogin = (req, res, next) => {
               });
             }else{
             const Token = jwt.sign({_id:user._id},JWT_SECRET)
-            const ftoken = req.body.ftoken;
+            const Ftoken = req.body.Ftoken;
         
             //console.log(Token);
             
              Register.findOneAndUpdate({Email: req.body.Email }, { $set:
               {
                 Token: Token,
-                fcmToken: ftoken 
+                fcmToken: Ftoken 
               }
            },
           null, function (err, docs, next) {
@@ -253,12 +335,12 @@ user_history.forEach(async (element, index, array) => {
              funName(jsonToSend, Token, is_driver);
          }
 });
-function funName(list, token, is_driver) {
+function funName(List, Token, Is_driver) {
 
   res.status(200).json({
-    list,
-    token,
-    is_driver   
+    List,
+    Token,
+    Is_driver   
   });
  }
 }
@@ -285,9 +367,9 @@ function funName(list, token, is_driver) {
       const list = user.plist;
      res.status(200).json(
        {
-           list,
+           List,
            Token,
-           is_driver
+           Is_driver
        }
    )
     });
@@ -317,9 +399,7 @@ export const driverHistory = async (req, res) => {
    .then(user => {
      const driver_list = user.favlist;
     res.status(200).json(
-      {
-        driver_list
-      }
+        driver_list  
   )
    });
 }
@@ -416,9 +496,9 @@ export const passengerHistory = async (req, res) => {
   });
   function funName(list) {
   
-    res.status(200).json({
+    res.status(200).json(
       list  
-    });
+    );
    }
   }
 
@@ -506,13 +586,19 @@ export const addDriver = async (req, res, next) => {
   const ridetype = req.body.RideType
  
   if(tchecker == '' || tchecker == undefined){
-   return res.send('Please enter your token')
+    return res.status(401).json({
+      message: "Please enter your token"
+    });
   }
   if( locality == '' || locality == undefined){
-    return res.send('Please Enter Locality')
+    return res.status(401).json({
+      message: "Please Enter Locality"
+    });
   }
   if(ridetype == '' || ridetype == undefined){
-    return res.send('Please enter your ride type')
+    return res.status(401).json({
+      message: "Please enter your ride type"
+    });
   }
   else{
   const tkn = await Register.findOne({ Token: req.body.Token })
@@ -605,7 +691,7 @@ export const addDriver = async (req, res, next) => {
     }
 
 export const confirmBooking = async (req, res, next) => {
-  const postid = await Passenger.findOne({ _id: req.query.poster })
+  const postid = await Passenger.findOne({ _id: req.query.Poster })
   console.log(postid.poster);
   const tokenn = await Register.findOne({ Token: req.query.Token },{"_id":1,"FirstName":1,"LastName":1, "Image":1})
   const drvr = await Register.findOne({ _id: postid.poster },{"FirstName":1,"LastName":1,"Image":1});
@@ -699,7 +785,7 @@ admin.messaging().send(message)
     
 // Booking Cancellation
 export const bookingCancellation = async (req, res, next) => {
-  const postid = await Passenger.findOne({ _id: req.query.poster })
+  const postid = await Passenger.findOne({ _id: req.query.Poster })
   console.log('poster',postid.poster);
   const tokenn = await Register.findOne({ Token: req.query.Token },{"FirstName":1,"LastName":1});
   const drvr = await Register.findOne({ _id: postid.poster },{"FirstName":1,"LastName":1,"Image":1});
@@ -781,7 +867,7 @@ admin.messaging().send(message)
 //passenger calcelling trip  
 
 export const passengerCancellation = async (req, res, next) => {
-  const postid = await Pilot.findOne({ _id: req.query.poster })
+  const postid = await Pilot.findOne({ _id: req.query.Poster })
   //console.log('poster',postid.myfavorite);
   const tokenn = await Register.findOne({ Token: req.query.Token },{"FirstName":1,"LastName":1})
   const drvr = await Register.findOne({ _id: postid.myfavorite },{"FirstName":1,"LastName":1,"Image":1});
@@ -939,22 +1025,34 @@ export const addUserRequest = async (req, res) => {
   const ridetype = req.body.RideType
  
   if(tchecker == '' || tchecker == undefined ){
-   return res.send('Please enter your token')
+    return res.status(401).json({
+      message: "Please enter your token"
+    });
   }
   if( PickUp == '' || PickUp == undefined){
-    return res.send('Please Enter PicUp location')
+    return res.status(401).json({
+      message: "Please enter your pickUp location"
+    });
   }
   if( DropOff == '' || DropOff == undefined){
-    return res.send('Please enter your Dropoff location')
+    return res.status(401).json({
+      message: "Please enter your dropoff location"
+    });
   }
   if( Time == '' || Time == undefined){
-    return res.send('Please enter your ride time')
+    return res.status(401).json({
+      message: "Please enter your ride time"
+    });
   }
   if( Desc == '' || Desc == undefined){
-    return res.send('Please enter your car description')
+    return res.status(401).json({
+      message: "Please enter your car description"
+    });
   }
   if( ridetype == '' || ridetype == undefined){
-    return res.send('Please enter your ride type')
+    return res.status(401).json({
+      message: "Please enter your ride type"
+    });
   }
   else{
   const tkn = await Register.findOne({ Token: req.body.Token })

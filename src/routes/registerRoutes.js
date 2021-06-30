@@ -15,7 +15,8 @@ import { addnewRegister,
          liveDriver,
          tokenGenerator,
          bookingCancellation,
-         passengerCancellation
+         passengerCancellation,
+         uploadImage
 } from '../controller/registerController';
 import express from 'express';
 
@@ -24,8 +25,10 @@ import express from 'express';
 // , upload.single('Image')
 
 const routes = (app) => {
+    app.route('/image')
+    .post(uploadImage); 
 
-app.route('/images', express.static('uploads'));    
+//app.route('/images', express.static('uploads'));    
 
 app.route('/register') //registration
     .get((req,res, next) => {
