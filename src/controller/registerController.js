@@ -168,26 +168,16 @@ export const addnewRegister = (req, res, next) => {
   let fileName = "image." + extension;
   try {
   fs.writeFileSync("./images/" + fileName, imageBuffer, 'utf8');
-  //res.setHeader('Content-Type','application/x-www-form-urlencoded')
   return res.status(200).json({
     message: "Registered successfully!"
   });
-  //next();
-  //res.end();
-  
   } 
   catch (e) {
   next(e);
   }
   
-  //next();
 }
-    //else{
-      //res.send("Please enter the medatory fields")
-    //}    
-
-
-
+  
 
 export const getRegister = async (req, res) => {
     const { page = 1, limit = 5 } = req.query;
